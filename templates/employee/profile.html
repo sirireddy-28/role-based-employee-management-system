@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}My Profile{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+  <h2>My Profile</h2>
+  <p>Your personal and professional information.</p>
+</div>
+
+<div class="row g-4">
+  <!-- Profile Card -->
+  <div class="col-md-4">
+    <div class="content-card" style="text-align:center;">
+      <div class="profile-avatar-large">{{ emp.name[0].upper() }}</div>
+      <h4 style="font-weight:700; margin-bottom:6px;">{{ emp.name }}</h4>
+      <p style="color:var(--text-secondary); font-size:0.85rem; margin-bottom:8px;">{{ emp.email }}</p>
+      <span class="badge-custom badge-{{ emp.role or 'employee' }}" style="margin-bottom:1rem; display:inline-block;">
+        {{ emp.role or 'employee' }}
+      </span>
+      <hr>
+      <div class="d-flex justify-content-around mt-3">
+        <div style="text-align:center;">
+          <div style="font-size:1.25rem; font-weight:800; color:var(--accent-purple-light);">{{ emp.department or '—' }}</div>
+          <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">Department</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:1.25rem; font-weight:800; color:var(--accent-teal-light);">
+            <span class="badge-custom badge-{{ emp.status or 'active' }}">{{ emp.status or 'active' }}</span>
+          </div>
+          <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">Status</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Card -->
+  <div class="col-md-8">
+    <div class="content-card">
+      <div class="card-header-custom">
+        <div class="card-title-custom">
+          <div class="title-icon"><i class="bi bi-info-circle-fill"></i></div>
+          Personal Information
+        </div>
+      </div>
+      <div class="profile-info-grid">
+        <div class="profile-info-item">
+          <div class="profile-info-label"><i class="bi bi-person-fill me-1"></i> Full Name</div>
+          <div class="profile-info-value">{{ emp.name }}</div>
+        </div>
+        <div class="profile-info-item">
+          <div class="profile-info-label"><i class="bi bi-envelope-fill me-1"></i> Email</div>
+          <div class="profile-info-value" style="word-break:break-all;">{{ emp.email }}</div>
+        </div>
+        <div class="profile-info-item">
+          <div class="profile-info-label"><i class="bi bi-telephone-fill me-1"></i> Phone</div>
+          <div class="profile-info-value">{{ emp.phone or 'Not provided' }}</div>
+        </div>
+        <div class="profile-info-item">
+          <div class="profile-info-label"><i class="bi bi-at me-1"></i> Username</div>
+          <div class="profile-info-value">{{ emp.username or '—' }}</div>
+        </div>
+      </div>
+
+      <div class="card-header-custom" style="margin-top:1.5rem;">
+        <div class="card-title-custom">
+          <div class="title-icon"><i class="bi bi-building"></i></div>
+          Work Information
+        </div>
+      </div>
+      <div class="profile-info-grid">
+        <div class="profile-info-item">
+          <div class="profile-info-label"><i class="bi bi-building me-1"></i> Department</div>
+          <div class="profile-info-value">{{ emp.department or 'Not assigned' }}</div>
+        </div>
+        <div class="profile-info-item">
+          <div class="profile-info-label"><i class="bi bi-briefcase-fill me-1"></i> Designation</div>
+          <div class="profile-info-value">{{ emp.designation or 'Not assigned' }}</div>
+        </div>
+        <div class="profile-info-item">
+          <div class="profile-info-label"><i class="bi bi-calendar-event-fill me-1"></i> Joined On</div>
+          <div class="profile-info-value">{{ emp.joining_date or 'N/A' }}</div>
+        </div>
+        <div class="profile-info-item">
+          <div class="profile-info-label"><i class="bi bi-shield-fill me-1"></i> Role</div>
+          <div class="profile-info-value">
+            <span class="badge-custom badge-{{ emp.role or 'employee' }}">{{ emp.role or 'Employee' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="content-card">
+      <div class="card-header-custom">
+        <div class="card-title-custom">
+          <div class="title-icon"><i class="bi bi-lightning-fill"></i></div>
+          Quick Links
+        </div>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        {% if session.role == 'employee' %}
+        <a href="{{ url_for('employee_apply_leave') }}" class="btn-accent" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+          <i class="bi bi-send-fill"></i> Apply Leave
+        </a>
+        <a href="{{ url_for('employee_leave_status') }}" class="btn-outline-custom" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+          <i class="bi bi-clock-history"></i> Leave Status
+        </a>
+        <a href="{{ url_for('employee_salary') }}" class="btn-outline-custom" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+          <i class="bi bi-currency-rupee"></i> View Salary
+        </a>
+        {% elif session.role == 'hr' %}
+        <a href="{{ url_for('hr_leaves') }}" class="btn-accent" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+          <i class="bi bi-calendar-check-fill"></i> Manage Leaves
+        </a>
+        <a href="{{ url_for('hr_employees') }}" class="btn-outline-custom" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+          <i class="bi bi-people-fill"></i> Employee Records
+        </a>
+        {% elif session.role == 'admin' %}
+        <a href="{{ url_for('admin_dashboard') }}" class="btn-accent" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+          <i class="bi bi-grid-1x2-fill"></i> Admin Dashboard
+        </a>
+        <a href="{{ url_for('admin_employees') }}" class="btn-outline-custom" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+          <i class="bi bi-people-fill"></i> Manage Employees
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

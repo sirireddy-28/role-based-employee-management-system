@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Leave Requests (Admin){% endblock %}
+{% block page_title %}All Leave Requests{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+  <h2>Leave Requests — System View</h2>
+  <p>Review all leave applications submitted by employees.</p>
+</div>
+
+<div class="content-card">
+  <div class="card-header-custom">
+    <div class="card-title-custom">
+      <div class="title-icon"><i class="bi bi-calendar-check-fill"></i></div>
+      All Leaves <span style="color:var(--text-muted); font-weight:400; font-size:0.85rem;">({{ leaves|length }} records)</span>
+    </div>
+    <div class="search-box">
+      <i class="bi bi-search search-icon"></i>
+      <input type="text" id="table-search" class="form-control" placeholder="Search...">
+    </div>
+  </div>
+
+  {% if leaves %}
+  <div class="table-wrapper">
+    <table class="table-dark-custom">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Employee</th>
+          <th>Department</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Reason</th>
+          <th>Applied</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for leave in leaves %}
+        <tr class="searchable-row">
+          <td style="color:var(--text-muted);">{{ loop.index }}</td>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <div class="emp-avatar">{{ leave.name[0].upper() }}</div>
+              <strong>{{ leave.name }}</strong>
+            </div>
+          </td>
+          <td>{{ leave.department or '—' }}</td>
+          <td>{{ leave.start_date }}</td>
+          <td>{{ leave.end_date }}</td>
+          <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="{{ leave.reason }}">{{ leave.reason }}</td>
+          <td style="color:var(--text-muted); font-size:0.8rem;">{{ leave.applied_at[:10] }}</td>
+          <td><span class="badge-custom badge-{{ leave.status }}">{{ leave.status }}</span></td>
+          <td>
+            {% if leave.status == 'pending' %}
+            <div class="d-flex gap-1">
+              <form method="POST" action="{{ url_for('hr_update_leave', leave_id=leave.id) }}" style="display:inline;">
+                <input type="hidden" name="status" value="approved">
+                <button type="submit" class="btn-sm-icon btn-approve" title="Approve"><i class="bi bi-check-lg"></i></button>
+              </form>
+              <form method="POST" action="{{ url_for('hr_update_leave', leave_id=leave.id) }}" style="display:inline;">
+                <input type="hidden" name="status" value="rejected">
+                <button type="submit" class="btn-sm-icon btn-reject" title="Reject"><i class="bi bi-x-lg"></i></button>
+              </form>
+            </div>
+            {% else %}
+            <span style="color:var(--text-muted); font-size:0.8rem;">Reviewed</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <i class="bi bi-calendar-x"></i>
+    <p>No leave requests found.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

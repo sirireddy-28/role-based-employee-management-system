@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Apply for Leave{% endblock %}
+{% block page_title %}Apply for Leave{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+  <h2>Apply for Leave</h2>
+  <p>Submit a leave request — your HR team will review it shortly.</p>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-7">
+    <div class="content-card">
+      <div class="card-header-custom">
+        <div class="card-title-custom">
+          <div class="title-icon"><i class="bi bi-send-fill"></i></div>
+          Leave Application Form
+        </div>
+      </div>
+
+      <form method="POST" action="{{ url_for('employee_apply_leave') }}" id="leave-form">
+        <div class="mb-4">
+          <label class="form-label" for="start_date">Start Date *</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-calendar-event-fill"></i></span>
+            <input type="date" id="start_date" name="start_date" class="form-control" required
+                   min="{{ now if now is defined else '' }}">
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label" for="end_date">End Date *</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-calendar-event-fill"></i></span>
+            <input type="date" id="end_date" name="end_date" class="form-control" required>
+          </div>
+          <small id="days-count" style="color:var(--accent-teal-light); font-size:0.8rem; margin-top:4px; display:block;"></small>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label" for="reason">Reason for Leave *</label>
+          <textarea id="reason" name="reason" class="form-control" rows="4"
+                    placeholder="Please describe the reason for your leave request..." required
+                    maxlength="500" style="resize:vertical;"></textarea>
+          <small id="char-count" style="color:var(--text-muted); font-size:0.75rem;">0 / 500 characters</small>
+        </div>
+
+        <div class="d-flex gap-3">
+          <button type="submit" class="btn-accent" style="flex:1; justify-content:center; display:flex; align-items:center; gap:6px;">
+            <i class="bi bi-send-fill"></i> Submit Application
+          </button>
+          <a href="{{ url_for('employee_leave_status') }}" class="btn-outline-custom" style="text-decoration:none; display:inline-flex; align-items:center;">
+            View Status
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-md-5">
+    <!-- Leave Policy Info -->
+    <div class="content-card">
+      <div class="card-header-custom">
+        <div class="card-title-custom">
+          <div class="title-icon"><i class="bi bi-info-circle-fill"></i></div>
+          Leave Policy
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:0.875rem;">
+        <div style="display:flex; gap:12px; align-items:flex-start;">
+          <div style="width:32px; height:32px; background:rgba(124,111,247,0.15); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--accent-purple-light);">
+            <i class="bi bi-clock-fill"></i>
+          </div>
+          <div>
+            <div style="font-weight:600; font-size:0.875rem; margin-bottom:2px;">Processing Time</div>
+            <div style="color:var(--text-secondary); font-size:0.8rem;">Leave requests are typically reviewed within 1–2 business days.</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:12px; align-items:flex-start;">
+          <div style="width:32px; height:32px; background:rgba(0,212,170,0.15); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--accent-teal-light);">
+            <i class="bi bi-calendar-check-fill"></i>
+          </div>
+          <div>
+            <div style="font-weight:600; font-size:0.875rem; margin-bottom:2px;">Advance Notice</div>
+            <div style="color:var(--text-secondary); font-size:0.8rem;">Apply at least 3 days in advance for planned leaves.</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:12px; align-items:flex-start;">
+          <div style="width:32px; height:32px; background:rgba(255,107,53,0.15); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--accent-orange);">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+          </div>
+          <div>
+            <div style="font-weight:600; font-size:0.875rem; margin-bottom:2px;">Important Note</div>
+            <div style="color:var(--text-secondary); font-size:0.8rem;">Consecutive leaves require manager pre-approval before submitting.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Applicant Info -->
+    <div class="content-card">
+      <div class="card-header-custom">
+        <div class="card-title-custom">
+          <div class="title-icon"><i class="bi bi-person-circle"></i></div>
+          Applicant
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <div class="emp-avatar" style="width:48px; height:48px; font-size:1.1rem;">{{ emp.name[0].upper() }}</div>
+        <div>
+          <div style="font-weight:700;">{{ emp.name }}</div>
+          <div style="font-size:0.8rem; color:var(--text-secondary);">{{ emp.designation or 'Employee' }} • {{ emp.department or 'N/A' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% block scripts %}
+<script>
+  const startDate = document.getElementById('start_date');
+  const endDate = document.getElementById('end_date');
+  const daysCount = document.getElementById('days-count');
+  const reasonEl = document.getElementById('reason');
+  const charCount = document.getElementById('char-count');
+
+  // Set min date to today
+  const today = new Date().toISOString().split('T')[0];
+  startDate.min = today;
+
+  function calcDays() {
+    if (startDate.value && endDate.value) {
+      const s = new Date(startDate.value);
+      const e = new Date(endDate.value);
+      const diff = Math.ceil((e - s) / (1000 * 60 * 60 * 24)) + 1;
+      if (diff > 0) {
+        daysCount.textContent = `📅 ${diff} day${diff > 1 ? 's' : ''} of leave`;
+      } else {
+        daysCount.textContent = '⚠ End date must be after start date';
+        daysCount.style.color = 'var(--accent-pink)';
+      }
+    }
+  }
+
+  startDate.addEventListener('change', function() {
+    endDate.min = this.value;
+    calcDays();
+  });
+
+  endDate.addEventListener('change', calcDays);
+
+  reasonEl.addEventListener('input', function() {
+    charCount.textContent = `${this.value.length} / 500 characters`;
+  });
+</script>
+{% endblock %}
+{% endblock %}

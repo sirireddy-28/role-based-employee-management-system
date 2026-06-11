@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}My Support Tickets{% endblock %}
+{% block page_title %}IT & HR Helpdesk{% endblock %}
+
+{% block content %}
+<div class="content-card fade-in">
+  <div class="card-header-custom">
+    <div class="card-title-custom">
+      <div class="title-icon"><i class="bi bi-headset"></i></div>
+      My Helpdesk Tickets
+    </div>
+    <button type="button" class="btn-primary-custom px-4 py-2" data-bs-toggle="modal" data-bs-target="#addTicketModal">
+      Raise New Ticket
+    </button>
+  </div>
+  
+  <div class="table-responsive mt-3">
+    <table class="table table-dark table-hover align-middle">
+      <thead>
+        <tr>
+          <th>Date raised</th>
+          <th>Issue Context</th>
+          <th>Status</th>
+          <th>Resolution Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in tickets %}
+        <tr>
+          <td><span style="color:var(--text-muted); font-size:0.85rem;">{{ t.created_at[:16] }}</span></td>
+          <td>
+            <div style="font-weight:600; font-size:1.05rem;">{{ t.title }}</div>
+            <div style="font-size:0.85rem; color:var(--text-muted); padding-top:4px;">{{ t.description }}</div>
+          </td>
+          <td>
+            <span class="badge-custom 
+              {% if t.status == 'Open' %}badge-pending
+              {% elif t.status == 'In Progress' %}badge-info
+              {% else %}badge-approved{% endif %}">
+              {{ t.status }}
+            </span>
+          </td>
+          <td>
+            {% if t.response %}
+              <div style="font-size:0.85rem; color:var(--text-primary); border-left:3px solid var(--accent-purple-light); padding-left:10px;">{{ t.response }}</div>
+            {% else %}
+              <span class="text-muted" style="font-style:italic; font-size:0.85rem;">Pending reviewer action...</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" class="text-center py-4" style="color:var(--text-muted);">You haven't raised any support tickets yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="addTicketModal" tabindex="-1" data-bs-theme="dark">
+  <div class="modal-dialog">
+    <div class="modal-content" style="background:var(--card-bg); border:1px solid var(--border-color);">
+      <form action="{{ url_for('hr_extensions.create_ticket') }}" method="POST">
+        <div class="modal-header border-0">
+          <h5 class="modal-title">Create Issue Ticket</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label text-muted">Issue Subject Title</label>
+            <input type="text" name="title" class="form-control" style="background:var(--bg-color); border-color:var(--border-color); color:var(--text-primary);" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted">Detail Description</label>
+            <textarea name="description" class="form-control" style="background:var(--bg-color); border-color:var(--border-color); color:var(--text-primary);" rows="4" required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn-primary-custom px-4 py-2">Submit Ticket</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

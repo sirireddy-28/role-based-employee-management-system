@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}My Skills{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">My Skills Profile</h5>
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addSkillModal">
+                    <i class="bi bi-plus-circle"></i> Add Skill
+                </button>
+            </div>
+            <div class="card-body">
+                {% if skills %}
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Skill Name</th>
+                                <th>Proficiency</th>
+                                <th>Source</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for skill in skills %}
+                            <tr>
+                                <td><strong>{{ skill.skill_name }}</strong></td>
+                                <td>
+                                    <span class="badge {% if skill.proficiency == 'Expert' %}bg-success{% elif skill.proficiency == 'Intermediate' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                        {{ skill.proficiency }}
+                                    </span>
+                                </td>
+                                <td><span class="text-secondary small">{{ skill.source }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-secondary py-4">
+                    <p>You haven't added any skills yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Training Recommendations</h5>
+            </div>
+            <div class="card-body">
+                {% if trainings %}
+                <ul class="list-group list-group-flush">
+                    {% for tr in trainings %}
+                    <li class="list-group-item bg-transparent px-0 border-secondary text-white">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1 text-primary">{{ tr.recommended_skill }}</h6>
+                        </div>
+                        <p class="mb-1 small text-secondary">{{ tr.reason }}</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="text-center text-secondary py-4">
+                    <p>No training recommendations at this time.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Skill Modal -->
+<div class="modal fade" id="addSkillModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content text-dark">
+            <form method="POST" action="{{ url_for('skill_service.employee_skills') }}">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Skill</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Skill Name</label>
+                        <input type="text" name="skill_name" class="form-control" placeholder="e.g. Python" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Proficiency</label>
+                        <select name="proficiency" class="form-select">
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Expert">Expert</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Add Skill</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

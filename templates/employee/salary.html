@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}My Salary{% endblock %}
+{% block page_title %}My Salary Details{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+  <h2>Salary Details</h2>
+  <p>View your monthly salary records and payment status.</p>
+</div>
+
+{% if salaries %}
+<!-- Latest Salary Highlight -->
+{% set latest = salaries[0] %}
+<div class="row g-4 mb-4">
+  <div class="col-md-5">
+    <div class="salary-highlight" style="height:100%;">
+      <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-muted); margin-bottom:6px;">
+        Latest Net Pay — {{ latest.month }} {{ latest.year }}
+      </div>
+      <div class="salary-amount">₹{{ "{:,.0f}".format(latest.net_salary) }}</div>
+      <span class="badge-custom badge-{{ latest.status }}" style="margin-top:12px; display:inline-block;">{{ latest.status | capitalize }}</span>
+      {% if latest.paid_on %}
+      <div style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">Paid on {{ latest.paid_on }}</div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-md-7">
+    <div class="content-card" style="height:100%;">
+      <div class="card-header-custom">
+        <div class="card-title-custom">
+          <div class="title-icon"><i class="bi bi-pie-chart-fill"></i></div>
+          Breakdown — {{ latest.month }} {{ latest.year }}
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:0.875rem;">
+        <!-- Basic -->
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; background:var(--bg-secondary); border-radius:var(--radius-sm); border:1px solid var(--border-color);">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:10px; height:10px; border-radius:50%; background:var(--accent-purple);"></div>
+            <span style="font-weight:500;">Basic Salary</span>
+          </div>
+          <strong>₹{{ "{:,.0f}".format(latest.basic_salary) }}</strong>
+        </div>
+        <!-- Allowances -->
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; background:var(--bg-secondary); border-radius:var(--radius-sm); border:1px solid rgba(0,212,170,0.2);">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:10px; height:10px; border-radius:50%; background:var(--accent-teal);"></div>
+            <span style="font-weight:500;">Allowances</span>
+          </div>
+          <strong style="color:var(--accent-teal-light);">+₹{{ "{:,.0f}".format(latest.allowances) }}</strong>
+        </div>
+        <!-- Deductions -->
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; background:var(--bg-secondary); border-radius:var(--radius-sm); border:1px solid rgba(247,37,133,0.2);">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:10px; height:10px; border-radius:50%; background:var(--accent-pink);"></div>
+            <span style="font-weight:500;">Deductions</span>
+          </div>
+          <strong style="color:var(--accent-pink);">-₹{{ "{:,.0f}".format(latest.deductions) }}</strong>
+        </div>
+        <!-- Net -->
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:0.875rem 1rem; background:linear-gradient(135deg,rgba(124,111,247,0.1),rgba(67,97,238,0.05)); border-radius:var(--radius-sm); border:1px solid rgba(124,111,247,0.25);">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:10px; height:10px; border-radius:50%; background:linear-gradient(135deg,var(--accent-purple),var(--accent-blue));"></div>
+            <span style="font-weight:700;">Net Salary</span>
+          </div>
+          <strong style="font-size:1.1rem; background:linear-gradient(135deg,var(--accent-purple-light),var(--accent-teal-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">
+            ₹{{ "{:,.0f}".format(latest.net_salary) }}
+          </strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- History Table -->
+<div class="content-card">
+  <div class="card-header-custom">
+    <div class="card-title-custom">
+      <div class="title-icon"><i class="bi bi-clock-history"></i></div>
+      Salary History
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="table-dark-custom">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Month / Year</th>
+          <th>Basic</th>
+          <th>Allowances</th>
+          <th>Deductions</th>
+          <th>Net Salary</th>
+          <th>Paid On</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sal in salaries %}
+        <tr>
+          <td style="color:var(--text-muted);">{{ loop.index }}</td>
+          <td style="font-weight:600;">{{ sal.month }} {{ sal.year }}</td>
+          <td>₹{{ "{:,.0f}".format(sal.basic_salary) }}</td>
+          <td style="color:var(--accent-teal-light);">+₹{{ "{:,.0f}".format(sal.allowances) }}</td>
+          <td style="color:var(--accent-pink);">-₹{{ "{:,.0f}".format(sal.deductions) }}</td>
+          <td style="font-weight:800; font-size:1rem;">₹{{ "{:,.0f}".format(sal.net_salary) }}</td>
+          <td>{{ sal.paid_on or '—' }}</td>
+          <td><span class="badge-custom badge-{{ sal.status }}">{{ sal.status }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% else %}
+<div class="content-card">
+  <div class="empty-state">
+    <i class="bi bi-currency-rupee"></i>
+    <p>No salary records available yet. Contact HR for assistance.</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

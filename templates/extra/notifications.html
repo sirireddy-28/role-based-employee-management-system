@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block page_title %}Notifications{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-12 col-md-8 mx-auto">
+    <div class="card card-custom">
+      <div class="card-header bg-transparent">
+        <h5 class="mb-0">Your Notifications</h5>
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group list-group-flush rounded-bottom">
+          {% for notif in notifications %}
+          <li class="list-group-item bg-dark border-secondary border-opacity-25 text-white {% if not notif.is_read %}bg-opacity-50{% endif %}">
+            <div class="d-flex w-100 justify-content-between">
+              <h6 class="mb-1">
+                <i class="bi bi-info-circle text-primary me-2"></i>
+                {{ notif.message }}
+              </h6>
+              <small class="text-secondary">{{ notif.created_at }}</small>
+            </div>
+          </li>
+          {% else %}
+          <li class="list-group-item bg-dark text-secondary text-center py-4 border-0">
+            No notifications found.
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

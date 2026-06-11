@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Salary Management{% endblock %}
+{% block page_title %}Salary Management{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+  <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+    <div>
+      <h2>Salary Management</h2>
+      <p>Add and manage employee salary records.</p>
+    </div>
+    <button class="btn-accent" data-bs-toggle="modal" data-bs-target="#addSalaryModal" style="display:inline-flex; align-items:center; gap:6px;">
+      <i class="bi bi-plus-circle-fill"></i> Add Salary Record
+    </button>
+  </div>
+</div>
+
+<!-- Salary Table -->
+<div class="content-card">
+  <div class="card-header-custom">
+    <div class="card-title-custom">
+      <div class="title-icon"><i class="bi bi-currency-rupee"></i></div>
+      All Salary Records <span style="color:var(--text-muted); font-weight:400; font-size:0.85rem;">({{ salaries|length }} records)</span>
+    </div>
+    <div class="search-box">
+      <i class="bi bi-search search-icon"></i>
+      <input type="text" id="table-search" class="form-control" placeholder="Search...">
+    </div>
+  </div>
+
+  {% if salaries %}
+  <div class="table-wrapper">
+    <table class="table-dark-custom">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Employee</th>
+          <th>Department</th>
+          <th>Month/Year</th>
+          <th>Basic</th>
+          <th>Allowances</th>
+          <th>Deductions</th>
+          <th>Net Salary</th>
+          <th>Paid On</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sal in salaries %}
+        <tr class="searchable-row">
+          <td style="color:var(--text-muted);">{{ loop.index }}</td>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <div class="emp-avatar">{{ sal.name[0].upper() }}</div>
+              <strong>{{ sal.name }}</strong>
+            </div>
+          </td>
+          <td>{{ sal.department or '—' }}</td>
+          <td>{{ sal.month }} {{ sal.year }}</td>
+          <td>₹{{ "{:,.0f}".format(sal.basic_salary) }}</td>
+          <td style="color:var(--accent-teal-light);">+₹{{ "{:,.0f}".format(sal.allowances) }}</td>
+          <td style="color:var(--accent-pink);">-₹{{ "{:,.0f}".format(sal.deductions) }}</td>
+          <td style="font-weight:700; font-size:1rem;">₹{{ "{:,.0f}".format(sal.net_salary) }}</td>
+          <td>{{ sal.paid_on or '—' }}</td>
+          <td><span class="badge-custom badge-{{ sal.status }}">{{ sal.status }}</span></td>
+          <td>
+            <a href="{{ url_for('admin_edit_salary', sal_id=sal.id) }}" class="btn-sm-icon btn-edit" title="Edit">
+              <i class="bi bi-pencil-fill"></i>
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <i class="bi bi-currency-rupee"></i>
+    <p>No salary records found.</p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Add Salary Modal -->
+<div class="modal fade" id="addSalaryModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-plus-circle-fill me-2" style="color:var(--accent-teal-light);"></i>Add Salary Record</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{{ url_for('admin_add_salary') }}">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label" for="sal-employee">Employee *</label>
+              <select id="sal-employee" name="employee_id" class="form-select" required>
+                <option value="">-- Select Employee --</option>
+                {% for emp in employees %}
+                <option value="{{ emp.id }}">{{ emp.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label" for="sal-month">Month *</label>
+              <select id="sal-month" name="month" class="form-select" required>
+                {% for m in ['January','February','March','April','May','June','July','August','September','October','November','December'] %}
+                <option value="{{ m }}">{{ m }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label" for="sal-year">Year *</label>
+              <input type="number" id="sal-year" name="year" class="form-control" value="2026" min="2020" max="2030" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label" for="basic_salary">Basic Salary (₹) *</label>
+              <input type="number" id="basic_salary" name="basic_salary" class="form-control" placeholder="60000" min="0" step="100" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label" for="allowances">Allowances (₹)</label>
+              <input type="number" id="allowances" name="allowances" class="form-control" placeholder="10000" min="0" step="100" value="0">
+            </div>
+            <div class="col-6">
+              <label class="form-label" for="deductions">Deductions (₹)</label>
+              <input type="number" id="deductions" name="deductions" class="form-control" placeholder="5000" min="0" step="100" value="0">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Net Salary (₹)</label>
+              <div style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:10px 14px; font-weight:700; color:var(--accent-teal-light);" id="net_salary_display">₹0</div>
+            </div>
+            <div class="col-6">
+              <label class="form-label" for="sal-paid-on">Paid On</label>
+              <input type="date" id="sal-paid-on" name="paid_on" class="form-control">
+            </div>
+            <div class="col-6">
+              <label class="form-label" for="sal-status">Status</label>
+              <select id="sal-status" name="status" class="form-select">
+                <option value="pending">Pending</option>
+                <option value="paid">Paid</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-outline-custom" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn-accent">Add Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

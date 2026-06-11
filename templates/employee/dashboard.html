@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% block title %}My Dashboard{% endblock %}
+{% block page_title %}My Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+  <h2>Hello, {{ emp.name }} 👋</h2>
+  <p>{{ emp.designation or 'Employee' }} • {{ emp.department or 'N/A' }} Department</p>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-card purple">
+    <div class="stat-icon purple"><i class="bi bi-wallet2"></i></div>
+    <div class="stat-value">{{ leave_balance_info.leave_balance if leave_balance_info else 0 }}</div>
+    <div class="stat-label">Available Leaves</div>
+  </div>
+  <div class="stat-card teal">
+    <div class="stat-icon teal"><i class="bi bi-calendar-check-fill"></i></div>
+    <div class="stat-value" data-count="{{ total_leaves }}">{{ total_leaves }}</div>
+    <div class="stat-label">Total Applications</div>
+  </div>
+  {% if recent_salary %}
+  <div class="stat-card orange">
+    <div class="stat-icon orange"><i class="bi bi-currency-rupee"></i></div>
+    <div class="stat-value">₹{{ "{:,.0f}".format(recent_salary.net_salary) }}</div>
+    <div class="stat-label">Last Net Salary</div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Profile Snapshot -->
+<div class="row g-4">
+  <div class="col-md-5">
+    <div class="content-card" style="text-align:center;">
+      <div class="card-header-custom">
+        <div class="card-title-custom">
+          <div class="title-icon"><i class="bi bi-person-circle"></i></div>
+          Profile Snapshot
+        </div>
+        <a href="{{ url_for('employee_profile') }}" class="btn-outline-custom">View Full</a>
+      </div>
+      <div class="profile-avatar-large">{{ emp.name[0].upper() }}</div>
+      <h5 style="font-weight:700; margin-bottom:4px;">{{ emp.name }}</h5>
+      <p style="color:var(--text-secondary); font-size:0.85rem; margin-bottom:1rem;">{{ emp.email }}</p>
+      <div class="profile-info-grid" style="text-align:left;">
+        <div class="profile-info-item">
+          <div class="profile-info-label">Department</div>
+          <div class="profile-info-value">{{ emp.department or 'Not assigned' }}</div>
+        </div>
+        <div class="profile-info-item">
+          <div class="profile-info-label">Designation</div>
+          <div class="profile-info-value">{{ emp.designation or 'Not assigned' }}</div>
+        </div>
+        <div class="profile-info-item">
+          <div class="profile-info-label">Joined</div>
+          <div class="profile-info-value">{{ emp.joining_date or 'N/A' }}</div>
+        </div>
+        <div class="profile-info-item">
+          <div class="profile-info-label">Status</div>
+          <div class="profile-info-value"><span class="badge-custom badge-{{ emp.status or 'active' }}">{{ emp.status or 'active' }}</span></div>
+        </div>
+      </div>
+
+      {% if ctc %}
+      <!-- CTC Breakdown -->
+      <hr style="border-color:var(--border-color); margin: 1.5rem 0;">
+      <h6 style="text-align:left; font-weight:600; font-size:0.9rem; color:var(--text-muted); margin-bottom:1rem;">CTC BREAKDOWN</h6>
+      <div class="profile-info-grid" style="text-align:left;">
+        <div class="profile-info-item">
+          <div class="profile-info-label">Base Salary</div>
+          <div class="profile-info-value" style="color:var(--text-primary);">₹{{ "{:,.0f}".format(ctc.base_salary) }}</div>
+        </div>
+        <div class="profile-info-item">
+          <div class="profile-info-label">Bonus/Allowances</div>
+          <div class="profile-info-value" style="color:var(--accent-teal-light);">₹{{ "{:,.0f}".format(ctc.bonus) }}</div>
+        </div>
+        <div class="profile-info-item">
+          <div class="profile-info-label">Deductions</div>
+          <div class="profile-info-value" style="color:var(--accent-pink);">₹{{ "{:,.0f}".format(ctc.deductions) }}</div>
+        </div>
+        <div class="profile-info-item">
+          <div class="profile-info-label">Total CTC</div>
+          <div class="profile-info-value" style="font-weight:700; color:var(--accent-purple-light);">₹{{ "{:,.0f}".format(ctc.total_ctc) }}</div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-md-7">
+    <!-- Quick Actions -->
+    <div class="content-card">
+      <div class="card-header-custom">
+        <div class="card-title-custom">
+          <div class="title-icon"><i class="bi bi-lightning-fill"></i></div>
+          Quick Actions
+        </div>
+      </div>
+      <div class="row g-3">
+        <div class="col-6">
+          <a href="{{ url_for('employee_apply_leave') }}" style="text-decoration:none;">
+            <div style="background:rgba(124,111,247,0.08); border:1px solid rgba(124,111,247,0.2); border-radius:var(--radius-md); padding:1.25rem; text-align:center;">
+              <div style="font-size:1.75rem; margin-bottom:8px;">📝</div>
+              <div style="font-size:0.85rem; font-weight:600; color:var(--accent-purple-light);">Apply for Leave</div>
+            </div>
+          </a>
+        </div>
+        <div class="col-6">
+          <a href="{{ url_for('employee_leave_status') }}" style="text-decoration:none;">
+            <div style="background:rgba(255,107,53,0.08); border:1px solid rgba(255,107,53,0.2); border-radius:var(--radius-md); padding:1.25rem; text-align:center;">
+              <div style="font-size:1.75rem; margin-bottom:8px;">🔍</div>
+              <div style="font-size:0.85rem; font-weight:600; color:var(--accent-orange);">Check Leave Status</div>
+            </div>
+          </a>
+        </div>
+        <div class="col-6">
+          <a href="{{ url_for('employee_salary') }}" style="text-decoration:none;">
+            <div style="background:rgba(0,212,170,0.08); border:1px solid rgba(0,212,170,0.2); border-radius:var(--radius-md); padding:1.25rem; text-align:center;">
+              <div style="font-size:1.75rem; margin-bottom:8px;">💵</div>
+              <div style="font-size:0.85rem; font-weight:600; color:var(--accent-teal-light);">View Salary</div>
+            </div>
+          </a>
+        </div>
+        <div class="col-6">
+          <a href="{{ url_for('employee_profile') }}" style="text-decoration:none;">
+            <div style="background:rgba(247,37,133,0.08); border:1px solid rgba(247,37,133,0.2); border-radius:var(--radius-md); padding:1.25rem; text-align:center;">
+              <div style="font-size:1.75rem; margin-bottom:8px;">👤</div>
+              <div style="font-size:0.85rem; font-weight:600; color:var(--accent-pink);">My Profile</div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    {% if recent_salary %}
+    <!-- Latest Salary -->
+    <div class="content-card">
+      <div class="card-header-custom">
+        <div class="card-title-custom">
+          <div class="title-icon"><i class="bi bi-currency-rupee"></i></div>
+          Latest Salary — {{ recent_salary.month }} {{ recent_salary.year }}
+        </div>
+        <a href="{{ url_for('employee_salary') }}" class="btn-outline-custom">All Records</a>
+      </div>
+      <div class="salary-highlight">
+        <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-muted); margin-bottom:8px;">Net Pay</div>
+        <div class="salary-amount">₹{{ "{:,.0f}".format(recent_salary.net_salary) }}</div>
+        <span class="badge-custom badge-{{ recent_salary.status }}" style="margin-top:12px;">{{ recent_salary.status }}</span>
+      </div>
+      <div class="row g-2 mt-3">
+        <div class="col-4 text-center">
+          <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">Basic</div>
+          <div style="font-weight:700; color:var(--text-primary);">₹{{ "{:,.0f}".format(recent_salary.basic_salary) }}</div>
+        </div>
+        <div class="col-4 text-center">
+          <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">Allowances</div>
+          <div style="font-weight:700; color:var(--accent-teal-light);">+₹{{ "{:,.0f}".format(recent_salary.allowances) }}</div>
+        </div>
+        <div class="col-4 text-center">
+          <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">Deductions</div>
+          <div style="font-weight:700; color:var(--accent-pink);">-₹{{ "{:,.0f}".format(recent_salary.deductions) }}</div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Upcoming Holidays -->
+    {% if holidays and holidays|length > 0 %}
+    <div class="content-card mt-4">
+      <div class="card-header-custom">
+        <div class="card-title-custom">
+          <div class="title-icon"><i class="bi bi-calendar-event"></i></div>
+          Upcoming Public Holidays
+        </div>
+        <a href="{{ url_for('hr_extensions.view_holidays') }}" class="btn-outline-custom">View All</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0" style="background:transparent;">
+          <tbody>
+            {% for h in holidays %}
+            <tr>
+              <td style="width: 50px;">
+                <div style="background:rgba(255,255,255,0.05); padding:8px; border-radius:8px; text-align:center;">
+                  <span style="font-size:0.7rem; display:block; color:var(--text-muted); text-transform:uppercase;">{{ h.date[-5:-3] }}</span>
+                  <span style="font-weight:700; font-size:1.1rem; line-height:1;">{{ h.date[-2:] }}</span>
+                </div>
+              </td>
+              <td>
+                <div style="font-weight:600; color:var(--text-primary);">{{ h.holiday_name }}</div>
+                <div style="font-size:0.8rem; color:var(--text-muted);">{{ h.description }}</div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

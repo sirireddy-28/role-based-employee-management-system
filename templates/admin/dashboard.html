@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block page_title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+  <h2>System Overview</h2>
+  <p>Welcome back, <strong style="color:var(--accent-purple-light)">{{ session.username }}</strong> — here's what's happening today.</p>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+  <div class="stat-card purple">
+    <div class="stat-icon purple"><i class="bi bi-people-fill"></i></div>
+    <div class="stat-value" data-count="{{ stats.total_employees }}">{{ stats.total_employees }}</div>
+    <div class="stat-label">Total Employees</div>
+  </div>
+  <div class="stat-card teal">
+    <div class="stat-icon teal"><i class="bi bi-person-check-fill"></i></div>
+    <div class="stat-value" data-count="{{ stats.total_users }}">{{ stats.total_users }}</div>
+    <div class="stat-label">Registered Users</div>
+  </div>
+  <div class="stat-card orange">
+    <div class="stat-icon orange"><i class="bi bi-hourglass-split"></i></div>
+    <div class="stat-value" data-count="{{ stats.pending_leaves }}">{{ stats.pending_leaves }}</div>
+    <div class="stat-label">Pending Leaves</div>
+  </div>
+  <div class="stat-card pink">
+    <div class="stat-icon pink"><i class="bi bi-building"></i></div>
+    <div class="stat-value" data-count="{{ stats.departments }}">{{ stats.departments }}</div>
+    <div class="stat-label">Departments</div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="content-card">
+  <div class="card-header-custom">
+    <div class="card-title-custom">
+      <div class="title-icon"><i class="bi bi-lightning-fill"></i></div>
+      Quick Actions
+    </div>
+  </div>
+  <div class="row g-3">
+    <div class="col-md-3">
+      <a href="{{ url_for('admin_add_employee') }}" style="text-decoration:none;">
+        <div style="background:rgba(124,111,247,0.08); border:1px solid rgba(124,111,247,0.2); border-radius:var(--radius-md); padding:1.25rem; text-align:center; transition:var(--transition);" class="hover-card">
+          <div style="font-size:1.75rem; margin-bottom:8px;">➕</div>
+          <div style="font-size:0.85rem; font-weight:600; color:var(--accent-purple-light);">Add Employee</div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3">
+      <a href="{{ url_for('admin_leaves') }}" style="text-decoration:none;">
+        <div style="background:rgba(255,107,53,0.08); border:1px solid rgba(255,107,53,0.2); border-radius:var(--radius-md); padding:1.25rem; text-align:center; transition:var(--transition);">
+          <div style="font-size:1.75rem; margin-bottom:8px;">📋</div>
+          <div style="font-size:0.85rem; font-weight:600; color:var(--accent-orange);">Review Leaves</div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3">
+      <a href="{{ url_for('admin_salary') }}" style="text-decoration:none;">
+        <div style="background:rgba(0,212,170,0.08); border:1px solid rgba(0,212,170,0.2); border-radius:var(--radius-md); padding:1.25rem; text-align:center; transition:var(--transition);">
+          <div style="font-size:1.75rem; margin-bottom:8px;">💰</div>
+          <div style="font-size:0.85rem; font-weight:600; color:var(--accent-teal-light);">Manage Salary</div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3">
+      <a href="{{ url_for('admin_employees') }}" style="text-decoration:none;">
+        <div style="background:rgba(247,37,133,0.08); border:1px solid rgba(247,37,133,0.2); border-radius:var(--radius-md); padding:1.25rem; text-align:center; transition:var(--transition);">
+          <div style="font-size:1.75rem; margin-bottom:8px;">👥</div>
+          <div style="font-size:0.85rem; font-weight:600; color:var(--accent-pink);">All Employees</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Employees -->
+<div class="content-card">
+  <div class="card-header-custom">
+    <div class="card-title-custom">
+      <div class="title-icon"><i class="bi bi-people-fill"></i></div>
+      Recent Employees
+    </div>
+    <a href="{{ url_for('admin_employees') }}" class="btn-outline-custom">View All</a>
+  </div>
+  {% if recent_employees %}
+  <div class="table-wrapper">
+    <table class="table-dark-custom">
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Department</th>
+          <th>Designation</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for emp in recent_employees %}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <div class="emp-avatar">{{ emp.name[0].upper() }}</div>
+              <div>
+                <div style="font-weight:600;">{{ emp.name }}</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">{{ emp.email }}</div>
+              </div>
+            </div>
+          </td>
+          <td>{{ emp.department or '—' }}</td>
+          <td>{{ emp.designation or '—' }}</td>
+          <td><span class="badge-custom badge-{{ emp.role or 'employee' }}">{{ emp.role or 'employee' }}</span></td>
+          <td><span class="badge-custom badge-{{ emp.status or 'active' }}">{{ emp.status or 'active' }}</span></td>
+          <td>
+            <div class="d-flex gap-1">
+              <a href="{{ url_for('admin_edit_employee', emp_id=emp.id) }}" class="btn-sm-icon btn-edit" title="Edit">
+                <i class="bi bi-pencil-fill"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <i class="bi bi-people"></i>
+    <p>No employees found.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

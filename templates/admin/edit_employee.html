@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Edit Employee{% endblock %}
+{% block page_title %}Edit Employee{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+  <div class="d-flex align-items-center gap-3">
+    <a href="{{ url_for('admin_employees') }}" class="btn-sm-icon btn-view" title="Back">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+      <h2>Edit Employee</h2>
+      <p>Update information for <strong style="color:var(--accent-purple-light);">{{ employee.name }}</strong></p>
+    </div>
+  </div>
+</div>
+
+<div class="content-card" style="max-width:780px;">
+  <div class="card-header-custom">
+    <div class="card-title-custom">
+      <div class="title-icon"><i class="bi bi-pencil-fill"></i></div>
+      Update Employee Record
+    </div>
+  </div>
+
+  <form method="POST" action="{{ url_for('admin_edit_employee', emp_id=employee.id) }}">
+    <div class="row g-3 mb-4">
+      <div class="col-12">
+        <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--accent-purple-light); font-weight:700; margin-bottom:1rem;">
+          <i class="bi bi-person-fill me-2"></i>Personal Details
+        </div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="name">Full Name *</label>
+        <input type="text" id="name" name="name" class="form-control" value="{{ employee.name }}" required>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone" class="form-control" value="{{ employee.phone or '' }}">
+      </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-12">
+        <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--accent-teal-light); font-weight:700; margin-bottom:1rem;">
+          <i class="bi bi-building me-2"></i>Work Details
+        </div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="department">Department</label>
+        <select id="department" name="department" class="form-select">
+          <option value="">-- Select --</option>
+          {% for dept in ['Engineering','Human Resources','Finance','Marketing','Sales','Operations','Administration','IT Support'] %}
+          <option value="{{ dept }}" {% if employee.department == dept %}selected{% endif %}>{{ dept }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="designation">Designation</label>
+        <input type="text" id="designation" name="designation" class="form-control" value="{{ employee.designation or '' }}">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="joining_date">Joining Date</label>
+        <input type="date" id="joining_date" name="joining_date" class="form-control" value="{{ employee.joining_date or '' }}">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="status">Status</label>
+        <select id="status" name="status" class="form-select">
+          <option value="active" {% if employee.status == 'active' %}selected{% endif %}>Active</option>
+          <option value="inactive" {% if employee.status == 'inactive' %}selected{% endif %}>Inactive</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-12">
+        <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--accent-orange); font-weight:700; margin-bottom:1rem;">
+          <i class="bi bi-shield-fill me-2"></i>System Role
+        </div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="role">Role</label>
+        <select id="role" name="role" class="form-select">
+          <option value="employee" {% if employee.role == 'employee' %}selected{% endif %}>Employee</option>
+          <option value="hr" {% if employee.role == 'hr' %}selected{% endif %}>HR</option>
+          <option value="admin" {% if employee.role == 'admin' %}selected{% endif %}>Admin</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="d-flex gap-3">
+      <button type="submit" class="btn-accent">
+        <i class="bi bi-check-lg me-2"></i>Save Changes
+      </button>
+      <a href="{{ url_for('admin_employees') }}" class="btn-outline-custom" style="text-decoration:none; display:inline-flex; align-items:center;">
+        Cancel
+      </a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Edit Salary Records{% endblock %}
+{% block page_title %}Edit Salary Details{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+  <div class="d-flex align-items-center gap-3">
+    <a href="{{ url_for('admin_salary') }}" class="btn-sm-icon btn-view">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+      <h2>Update Salary</h2>
+      <p>Editing salary record for <strong style="color:var(--accent-teal-light);">{{ salary.name }}</strong> ({{ salary.month }} {{ salary.year }})</p>
+    </div>
+  </div>
+</div>
+
+<div class="content-card" style="max-width:650px;">
+  <div class="card-header-custom">
+    <div class="card-title-custom">
+      <div class="title-icon"><i class="bi bi-pencil-fill"></i></div>
+      Salary Components
+    </div>
+  </div>
+
+  <form method="POST" action="{{ url_for('admin_edit_salary', sal_id=salary.id) }}">
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <label class="form-label" for="basic_salary">Basic Salary (₹) *</label>
+        <div class="input-group">
+          <span class="input-group-text">₹</span>
+          <input type="number" id="basic_salary" name="basic_salary" class="form-control" value="{{ salary.basic_salary }}" min="0" step="100" required>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="allowances">Allowances (₹)</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-plus" style="color:var(--accent-teal-light)"></i></span>
+          <input type="number" id="allowances" name="allowances" class="form-control" value="{{ salary.allowances }}" min="0" step="100">
+        </div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="deductions">Deductions (₹)</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-dash" style="color:var(--accent-pink)"></i></span>
+          <input type="number" id="deductions" name="deductions" class="form-control" value="{{ salary.deductions }}" min="0" step="100">
+        </div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Net Salary (Live Update)</label>
+        <div style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:10px 14px; font-weight:700; color:var(--accent-teal-light);" id="net_salary_display">₹{{ "{:,.0f}".format(salary.net_salary) }}</div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="paid_on">Paid On Date</label>
+        <input type="date" id="paid_on" name="paid_on" class="form-control" value="{{ salary.paid_on or '' }}">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="status">Payment Status</label>
+        <select id="status" name="status" class="form-select">
+          <option value="pending" {% if salary.status == 'pending' %}selected{% endif %}>Pending</option>
+          <option value="paid" {% if salary.status == 'paid' %}selected{% endif %}>Paid</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="d-flex gap-3">
+      <button type="submit" class="btn-accent">
+        <i class="bi bi-check-lg me-2"></i>Update Salary
+      </button>
+      <a href="{{ url_for('admin_salary') }}" class="btn-outline-custom" style="text-decoration:none; display:inline-flex; align-items:center;">
+        Cancel
+      </a>
+    </div>
+  </form>
+</div>
+{% endblock %}

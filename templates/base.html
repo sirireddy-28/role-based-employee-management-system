@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}EmpRole{% endblock %} | Employee Management System</title>
+  <meta name="description" content="Role-Based Employee Management System - Manage employees, leaves, and salaries with ease.">
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+<div class="app-layout">
+  <!-- Sidebar Overlay (mobile) -->
+  <div id="sidebar-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:999;"
+       onclick="document.getElementById('sidebar').classList.remove('open'); this.style.display='none';"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <!-- Brand -->
+    <div class="sidebar-header">
+      <a href="{{ url_for('dashboard') }}" class="sidebar-brand">
+        <div class="brand-icon">🏢</div>
+        <div>
+          <div class="brand-name">EmpRole</div>
+          <span class="brand-subtitle">Management System</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- User Info -->
+    <div class="sidebar-user">
+      <div class="d-flex align-items-center gap-3">
+        <div class="user-avatar avatar-{{ session.role }}">
+          {{ session.username[0].upper() }}
+        </div>
+        <div class="user-info">
+          <div class="user-name">{{ session.username }}</div>
+          <span class="user-role-badge role-{{ session.role }}">{{ session.role }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+      {% if session.role == 'admin' %}
+        <div class="nav-section-title">Administration</div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('admin_dashboard') }}" class="nav-link-custom {% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-grid-1x2-fill"></i></span> Dashboard
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('admin_employees') }}" class="nav-link-custom {% if 'admin_employee' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-people-fill"></i></span> Manage Employees
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('admin_leaves') }}" class="nav-link-custom {% if request.endpoint == 'admin_leaves' %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-calendar-check-fill"></i></span> Leave Requests
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('admin_salary') }}" class="nav-link-custom {% if request.endpoint == 'admin_salary' %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-currency-rupee"></i></span> Salary Management
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('hr_extensions.admin_ctc') }}" class="nav-link-custom {% if 'ctc' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-cash-coin"></i></span> CTC Management
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('hr_extensions.admin_leave_balances') }}" class="nav-link-custom {% if 'leave_balances' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-wallet2"></i></span> Leave Balances
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('hr_extensions.admin_compensations') }}" class="nav-link-custom {% if 'compensations' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-piggy-bank"></i></span> Compensations
+          </a>
+        </div>
+        <div class="nav-section-title">Operations</div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('extra.hr_attendance') }}" class="nav-link-custom {% if 'attendance' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-person-check-fill"></i></span> Attendance
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('extra.hr_meetings') }}" class="nav-link-custom {% if 'meetings' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-camera-video-fill"></i></span> Meetings
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('extra.hr_tasks') }}" class="nav-link-custom {% if 'tasks' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-list-task"></i></span> Tasks
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('extra.hr_performance') }}" class="nav-link-custom {% if 'performance' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-star-fill"></i></span> Performance
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('skill_service.talent_marketplace') }}" class="nav-link-custom {% if 'talent' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-lightbulb-fill"></i></span> Talent Marketplace
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('extra.reports') }}" class="nav-link-custom {% if 'reports' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-file-earmark-bar-graph-fill"></i></span> Reports
+          </a>
+        </div>
+        <div class="nav-section-title">Support & Info</div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('ai_service.ai_insights') }}" class="nav-link-custom {% if 'ai' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-robot"></i></span> AI Insights
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('hr_extensions.view_holidays') }}" class="nav-link-custom {% if 'holidays' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-calendar-event"></i></span> Holidays
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('hr_extensions.helpdesk') }}" class="nav-link-custom {% if 'helpdesk' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-headset"></i></span> Helpdesk
+          </a>
+        </div>
+        <div class="nav-section-title">Access</div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('hr_dashboard') }}" class="nav-link-custom">
+            <span class="nav-icon"><i class="bi bi-person-badge-fill"></i></span> HR Panel
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('employee_profile') }}" class="nav-link-custom {% if request.endpoint == 'employee_profile' %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-person-circle"></i></span> My Profile
+          </a>
+        </div>
+
+      {% elif session.role == 'hr' %}
+        <div class="nav-section-title">HR Management</div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('hr_dashboard') }}" class="nav-link-custom {% if request.endpoint == 'hr_dashboard' %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-grid-1x2-fill"></i></span> Dashboard
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('hr_employees') }}" class="nav-link-custom {% if 'hr_employee' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-people-fill"></i></span> Employee Records
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('hr_leaves') }}" class="nav-link-custom {% if request.endpoint == 'hr_leaves' %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-calendar-check-fill"></i></span> Leave Approval
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('hr_salary') }}" class="nav-link-custom {% if request.endpoint == 'hr_salary' %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-currency-rupee"></i></span> Salary Data
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('hr_extensions.admin_ctc') }}" class="nav-link-custom {% if 'ctc' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-cash-coin"></i></span> CTC Management
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('hr_extensions.admin_leave_balances') }}" class="nav-link-custom {% if 'leave_balances' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-wallet2"></i></span> Leave Balances
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('hr_extensions.admin_compensations') }}" class="nav-link-custom {% if 'compensations' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-piggy-bank"></i></span> Compensations
+          </a>
+        </div>
+        <div class="nav-section-title">Operations</div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('extra.hr_attendance') }}" class="nav-link-custom {% if 'attendance' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-person-check-fill"></i></span> Attendance
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('extra.hr_meetings') }}" class="nav-link-custom {% if 'meetings' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-camera-video-fill"></i></span> Meetings
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('extra.hr_tasks') }}" class="nav-link-custom {% if 'tasks' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-list-task"></i></span> Tasks
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('extra.hr_performance') }}" class="nav-link-custom {% if 'performance' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-star-fill"></i></span> Performance
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('skill_service.talent_marketplace') }}" class="nav-link-custom {% if 'talent' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-lightbulb-fill"></i></span> Talent Marketplace
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('extra.reports') }}" class="nav-link-custom {% if 'reports' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-file-earmark-bar-graph-fill"></i></span> Reports
+          </a>
+        </div>
+        <div class="nav-section-title">Support & Info</div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('ai_service.ai_insights') }}" class="nav-link-custom {% if 'ai' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-robot"></i></span> AI Insights
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('hr_extensions.view_holidays') }}" class="nav-link-custom {% if 'holidays' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-calendar-event"></i></span> Holidays
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('hr_extensions.helpdesk') }}" class="nav-link-custom {% if 'helpdesk' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-headset"></i></span> Helpdesk
+          </a>
+        </div>
+        <div class="nav-section-title">Personal</div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('employee_profile') }}" class="nav-link-custom {% if request.endpoint == 'employee_profile' %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-person-circle"></i></span> My Profile
+          </a>
+        </div>
+
+      {% else %}
+        <div class="nav-section-title">My Workspace</div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('employee_dashboard') }}" class="nav-link-custom {% if request.endpoint == 'employee_dashboard' %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-grid-1x2-fill"></i></span> Dashboard
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('employee_profile') }}" class="nav-link-custom {% if request.endpoint == 'employee_profile' %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-person-circle"></i></span> My Profile
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('skill_service.employee_skills') }}" class="nav-link-custom {% if 'skills' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-lightning-charge-fill"></i></span> My Skills
+          </a>
+        </div>
+        <div class="nav-section-title">Leave</div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('employee_apply_leave') }}" class="nav-link-custom {% if request.endpoint == 'employee_apply_leave' %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-send-fill"></i></span> Apply for Leave
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('employee_leave_status') }}" class="nav-link-custom {% if request.endpoint == 'employee_leave_status' %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-clock-history"></i></span> Leave Status
+          </a>
+        </div>
+        <div class="nav-section-title">Daily Operations</div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('hr_extensions.employee_clock') }}" class="nav-link-custom {% if 'clock' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-clock-history"></i></span> Clock In/Out
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('extra.employee_attendance') }}" class="nav-link-custom {% if 'attendance' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-person-check-fill"></i></span> Attendance
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('extra.employee_meetings') }}" class="nav-link-custom {% if 'meetings' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-camera-video-fill"></i></span> Meetings
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('extra.employee_tasks') }}" class="nav-link-custom {% if 'tasks' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-list-task"></i></span> Tasks
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('extra.employee_performance') }}" class="nav-link-custom {% if 'performance' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-star-fill"></i></span> Performance
+          </a>
+        </div>
+        <div class="nav-section-title">Payroll</div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('employee_salary') }}" class="nav-link-custom {% if request.endpoint == 'employee_salary' %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-currency-rupee"></i></span> My Salary
+          </a>
+        </div>
+        <div class="nav-section-title">Support & Info</div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('hr_extensions.view_holidays') }}" class="nav-link-custom {% if 'holidays' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-calendar-event"></i></span> Holidays
+          </a>
+        </div>
+        <div class="nav-item-custom">
+          <a href="{{ url_for('hr_extensions.helpdesk') }}" class="nav-link-custom {% if 'helpdesk' in request.endpoint %}active{% endif %}">
+            <span class="nav-icon"><i class="bi bi-headset"></i></span> Helpdesk
+          </a>
+        </div>
+      {% endif %}
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+      <a href="{{ url_for('logout') }}" class="logout-btn">
+        <i class="bi bi-box-arrow-left"></i> Sign Out
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+          <i class="bi bi-list"></i>
+        </button>
+        <span class="topbar-title">{% block page_title %}Dashboard{% endblock %}</span>
+      </div>
+      <div class="topbar-actions">
+        <a href="{{ url_for('extra.notifications') }}" class="text-white text-decoration-none me-3 position-relative">
+          <i class="bi bi-bell-fill fs-5"></i>
+          {% if unread_notifications_count > 0 %}
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+            {{ unread_notifications_count }}
+          </span>
+          {% endif %}
+        </a>
+        <span class="topbar-date">
+          <i class="bi bi-calendar3 me-1"></i>
+          <span id="topbar-date-text"></span>
+        </span>
+        <div class="user-avatar avatar-{{ session.role }}" style="width:32px;height:32px;font-size:0.75rem;">
+          {{ session.username[0].upper() }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Flash Messages -->
+    <div style="padding: 0 2rem; margin-top: 1rem;">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert-custom alert-{{ category }}">
+              {% if category == 'success' %}<i class="bi bi-check-circle-fill"></i>
+              {% elif category == 'danger' %}<i class="bi bi-x-circle-fill"></i>
+              {% elif category == 'warning' %}<i class="bi bi-exclamation-triangle-fill"></i>
+              {% else %}<i class="bi bi-info-circle-fill"></i>{% endif %}
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+
+    <!-- Page Content -->
+    <div class="page-content">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Custom JS -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+  // Set current date
+  const now = new Date();
+  document.getElementById('topbar-date-text').textContent = now.toLocaleDateString('en-IN', {
+    day: '2-digit', month: 'short', year: 'numeric'
+  });
+
+  // Mobile overlay
+  const overlay = document.getElementById('sidebar-overlay');
+  document.getElementById('sidebar-toggle')?.addEventListener('click', () => {
+    overlay.style.display = overlay.style.display === 'none' ? 'block' : 'none';
+  });
+</script>
+
+<!-- Chatbot Widget -->
+<div id="aiChatbotWidget" class="chatbot-widget collapsed">
+  <div class="chatbot-header" onclick="toggleChatbot()">
+    <span><i class="bi bi-robot"></i> AI Assistant</span>
+    <i class="bi bi-chevron-up" id="chatToggleIcon"></i>
+  </div>
+  <div class="chatbot-body" id="chatbotBody">
+    <div class="chat-message bot">Hello! I can help you check your salary, leaves, tasks, performance ratings, or holidays. How can I assist you?</div>
+  </div>
+  <div class="chatbot-footer">
+    <input type="text" id="chatInput" placeholder="Type 'tasks', 'leaves', 'salary'..." onkeypress="if(event.key === 'Enter') sendChat()">
+    <button onclick="sendChat()"><i class="bi bi-send-fill"></i></button>
+  </div>
+</div>
+
+<style>
+.chatbot-widget { position: fixed; bottom: 20px; right: 20px; width: 320px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; z-index: 1050; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: height 0.3s ease; }
+.chatbot-widget.collapsed { height: 50px; cursor: pointer; }
+.chatbot-widget:not(.collapsed) { height: 450px; }
+.chatbot-header { background: var(--accent-purple-dark); padding: 12px 16px; color: #fff; font-weight: 600; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+.chatbot-body { padding: 15px; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: var(--bg-color); }
+.chat-message { max-width: 85%; padding: 10px 14px; border-radius: 18px; font-size: 0.9rem; line-height: 1.4; word-wrap: break-word; }
+.chat-message.bot { background: #2a2a35; color: #e1e1e8; border-bottom-left-radius: 4px; align-self: flex-start; border: 1px solid #3f3f4e; }
+.chat-message.user { background: var(--accent-purple-dark); color: #fff; border-bottom-right-radius: 4px; align-self: flex-end; }
+.chatbot-footer { padding: 12px; background: var(--card-bg); border-top: 1px solid var(--border-color); display: flex; gap: 8px; }
+.chatbot-footer input { flex: 1; border: 1px solid var(--border-color); background: var(--bg-color); color: #fff; border-radius: 20px; padding: 8px 15px; outline: none; }
+.chatbot-footer button { border: none; background: var(--accent-purple-light); color: #fff; border-radius: 50%; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+.chatbot-footer button:hover { background: #8e72e8; }
+</style>
+
+<script>
+function toggleChatbot() {
+  const widget = document.getElementById('aiChatbotWidget');
+  const icon = document.getElementById('chatToggleIcon');
+  if (widget.classList.contains('collapsed')) {
+    widget.classList.remove('collapsed');
+    icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
+  } else {
+    widget.classList.add('collapsed');
+    icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
+  }
+}
+function appendMessage(text, sender) {
+  const body = document.getElementById('chatbotBody');
+  const div = document.createElement('div');
+  div.className = 'chat-message ' + sender;
+  div.textContent = text;
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+}
+function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if(!msg) return;
+  appendMessage(msg, 'user');
+  input.value = '';
+  
+  fetch('{{ url_for("chatbot_service.chat") }}', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: msg })
+  })
+  .then(r => r.json())
+  .then(data => {
+    appendMessage(data.reply, 'bot');
+  })
+  .catch(err => {
+    appendMessage('Error reaching AI Service.', 'bot');
+  });
+}
+</script>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

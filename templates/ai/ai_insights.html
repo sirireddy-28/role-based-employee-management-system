@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}AI Insights{% endblock %}
+{% block page_title %}AI Workforce Insights & Predictions{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Section 1: Predictive Workforce AI -->
+    <div class="col-12">
+        <div class="content-card fade-in">
+            <div class="card-header-custom mb-3">
+                <div class="card-title-custom">
+                    <div class="title-icon"><i class="bi bi-robot"></i></div>
+                    Predictive Retention AI
+                </div>
+            </div>
+            <p class="text-muted small">Our basic predictive logic analyzes employee performance ratings and leave utilization to flag potential workforce flight risks.</p>
+            
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Employee Name</th>
+                            <th>Predicted Risk Level</th>
+                            <th>AI Rationale</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in risk_predictions %}
+                        <tr>
+                            <td class="fw-bold">{{ r.name }}</td>
+                            <td><span class="{{ r.badge }}">{{ r.status }}</span></td>
+                            <td class="text-muted small">{{ r.reason }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-3">No prediction data available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Dynamic Skill Mapping -->
+    <div class="col-12">
+        <div class="content-card fade-in">
+            <div class="card-header-custom mb-3">
+                <div class="card-title-custom">
+                    <div class="title-icon"><i class="bi bi-bezier2"></i></div>
+                    Dynamic Skill & Talent Suggestions
+                </div>
+            </div>
+            <p class="text-muted small">Matches required task keywords (e.g., Python, SQL, React) with the existing employee skills registry to identify optimal task assignments or training needs.</p>
+            
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Pending Task</th>
+                            <th>Detected Skill Requirements</th>
+                            <th>Suggested Employees / Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for gap in skill_gaps %}
+                        <tr>
+                            <td class="fw-bold">{{ gap.task_title }}</td>
+                            <td><span class="badge bg-secondary text-light">{{ gap.needed_skills | title }}</span></td>
+                            <td>
+                                {% if 'Training' in gap.suggestions %}
+                                    <span class="text-danger small"><i class="bi bi-exclamation-triangle"></i> {{ gap.suggestions }}</span>
+                                {% else %}
+                                    <span class="text-success small"><i class="bi bi-person-check"></i> {{ gap.suggestions | title }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-3">No active skill gaps or pending tasks with defined keywords detected.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Leave Status{% endblock %}
+{% block page_title %}My Leave Applications{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+  <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+    <div>
+      <h2>Leave Status</h2>
+      <p>Track all your submitted leave applications.</p>
+    </div>
+    <a href="{{ url_for('employee_apply_leave') }}" class="btn-accent" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+      <i class="bi bi-plus-circle-fill"></i> New Application
+    </a>
+  </div>
+</div>
+
+<!-- Summary Stats -->
+<div class="stats-grid">
+  <div class="stat-card purple">
+    <div class="stat-icon purple"><i class="bi bi-send-fill"></i></div>
+    <div class="stat-value" data-count="{{ leaves|length }}">{{ leaves|length }}</div>
+    <div class="stat-label">Total Applied</div>
+  </div>
+  <div class="stat-card orange">
+    <div class="stat-icon orange"><i class="bi bi-hourglass-split"></i></div>
+    <div class="stat-value" data-count="{{ leaves|selectattr('status', 'equalto', 'pending')|list|length }}">{{ leaves|selectattr('status', 'equalto', 'pending')|list|length }}</div>
+    <div class="stat-label">Pending</div>
+  </div>
+  <div class="stat-card teal">
+    <div class="stat-icon teal"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="stat-value" data-count="{{ leaves|selectattr('status', 'equalto', 'approved')|list|length }}">{{ leaves|selectattr('status', 'equalto', 'approved')|list|length }}</div>
+    <div class="stat-label">Approved</div>
+  </div>
+  <div class="stat-card pink">
+    <div class="stat-icon pink"><i class="bi bi-x-circle-fill"></i></div>
+    <div class="stat-value" data-count="{{ leaves|selectattr('status', 'equalto', 'rejected')|list|length }}">{{ leaves|selectattr('status', 'equalto', 'rejected')|list|length }}</div>
+    <div class="stat-label">Rejected</div>
+  </div>
+</div>
+
+<!-- Leave Applications -->
+<div class="content-card">
+  <div class="card-header-custom">
+    <div class="card-title-custom">
+      <div class="title-icon"><i class="bi bi-clock-history"></i></div>
+      Application History
+    </div>
+  </div>
+
+  {% if leaves %}
+  <div style="display:flex; flex-direction:column; gap:12px;">
+    {% for leave in leaves %}
+    <div style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1.25rem; transition:var(--transition);"
+         onmouseover="this.style.borderColor='var(--accent-purple)'" onmouseout="this.style.borderColor='var(--border-color)'">
+      <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+        <div style="flex:1;">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="badge-custom badge-{{ leave.status }}">
+              {% if leave.status == 'pending' %}<i class="bi bi-hourglass-split me-1"></i>
+              {% elif leave.status == 'approved' %}<i class="bi bi-check-circle-fill me-1"></i>
+              {% else %}<i class="bi bi-x-circle-fill me-1"></i>{% endif %}
+              {{ leave.status | capitalize }}
+            </span>
+            <span style="font-size:0.75rem; color:var(--text-muted);">Applied: {{ leave.applied_at[:10] }}</span>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:0.75rem; margin-bottom:0.75rem;">
+            <div>
+              <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">From</div>
+              <div style="font-weight:600; color:var(--text-primary);">{{ leave.start_date }}</div>
+            </div>
+            <div>
+              <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">To</div>
+              <div style="font-weight:600; color:var(--text-primary);">{{ leave.end_date }}</div>
+            </div>
+            <div>
+              <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Reason</div>
+              <div style="font-weight:500; color:var(--text-secondary); font-size:0.875rem;">{{ leave.reason[:60] }}{% if leave.reason|length > 60 %}...{% endif %}</div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:right; flex-shrink:0;">
+          {% if leave.status == 'pending' %}
+          <div style="font-size:0.75rem; color:var(--text-muted);">Awaiting review</div>
+          {% elif leave.status == 'approved' %}
+          <div style="font-size:0.75rem; color:var(--accent-teal-light);">✓ Approved by HR</div>
+          {% else %}
+          <div style="font-size:0.75rem; color:var(--accent-pink);">✗ Rejected by HR</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <i class="bi bi-calendar-x"></i>
+    <p>No leave applications yet. <a href="{{ url_for('employee_apply_leave') }}" style="color:var(--accent-purple-light);">Apply for leave</a></p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

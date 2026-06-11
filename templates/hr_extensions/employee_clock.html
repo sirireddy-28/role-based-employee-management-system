@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Daily Attendance / Clock In{% endblock %}
+{% block page_title %}My Daily Attendance{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-md-6 fade-in">
+    <div class="content-card text-center" style="padding: 3rem 1.5rem;">
+      <h4 style="margin-bottom:0.5rem; font-weight:700;">Clock In / Clock Out</h4>
+      <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">Track your working hours accurately.</p>
+
+      {% if not log %}
+        <div style="font-size:3rem; margin-bottom:1rem; opacity:0.8;">☀️</div>
+        <p style="color:var(--text-primary); margin-bottom:1.5rem;">You haven't clocked in today.</p>
+        <form action="{{ url_for('hr_extensions.employee_clock') }}" method="POST">
+          <input type="hidden" name="action" value="clock_in">
+          <button type="submit" class="btn btn-lg btn-success" style="border-radius:var(--radius-md); padding: 0.75rem 2rem; font-weight:600; background:var(--accent-teal);">
+            <i class="bi bi-box-arrow-in-right me-2"></i> Clock In Now
+          </button>
+        </form>
+      {% elif log and not log.clock_out %}
+        <div style="font-size:3rem; margin-bottom:1rem; opacity:0.8;">🌙</div>
+        <p style="color:var(--accent-teal-light); margin-bottom:1rem; font-weight:600;">Clocked in at: {{ log.clock_in }}</p>
+        <form action="{{ url_for('hr_extensions.employee_clock') }}" method="POST">
+          <input type="hidden" name="action" value="clock_out">
+          <button type="submit" class="btn btn-lg btn-danger" style="border-radius:var(--radius-md); padding: 0.75rem 2rem; font-weight:600; background:var(--accent-pink);">
+            <i class="bi bi-box-arrow-left me-2"></i> Clock Out
+          </button>
+        </form>
+      {% elif log and log.clock_out %}
+        <div style="font-size:3rem; margin-bottom:1rem; opacity:0.8;">✅</div>
+        <h5 class="text-success" style="margin-bottom:1rem; font-weight:600;">Shift Completed</h5>
+        <p style="color:var(--text-muted); margin-bottom:0.25rem;">Clock In: <strong>{{ log.clock_in }}</strong></p>
+        <p style="color:var(--text-muted); margin-bottom:1rem;">Clock Out: <strong>{{ log.clock_out }}</strong></p>
+        <div class="badge-custom badge-active" style="display:inline-block; font-size:1.1rem; padding:0.5rem 1rem;">
+          Total Hours: {{ log.working_hours }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-md-6 fade-in">
+    <div class="content-card">
+      <div class="card-header-custom">
+        <div class="card-title-custom">
+          <div class="title-icon"><i class="bi bi-info-square"></i></div>
+          Information
+        </div>
+      </div>
+      <ul style="color:var(--text-muted); line-height:1.7; padding-left:1.2rem;">
+        <li>Please make sure to clock in when you arrive or start working.</li>
+        <li>Your checkout time is required to compute valid working hours.</li>
+        <li>If you forget to clock out, your working hours for the day might be recorded as 0 and need manual rectifying by HR.</li>
+        <li>For any discrepancies, use the Helpdesk module to raise a ticket.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

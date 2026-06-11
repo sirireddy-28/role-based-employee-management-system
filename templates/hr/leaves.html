@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Leave Approval (HR){% endblock %}
+{% block page_title %}Leave Approval{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+  <h2>Leave Management</h2>
+  <p>Review and approve/reject employee leave applications.</p>
+</div>
+
+<!-- Filter Tabs -->
+<div style="display:flex; gap:8px; margin-bottom:1.5rem; flex-wrap:wrap;">
+  <button onclick="filterLeaves('all')" id="filter-all" class="filter-btn active-filter"
+    style="padding:6px 16px; border-radius:20px; border:1px solid var(--accent-purple); background:rgba(124,111,247,0.15); color:var(--accent-purple-light); font-size:0.8rem; font-weight:600; cursor:pointer; transition:var(--transition);">
+    All
+  </button>
+  <button onclick="filterLeaves('pending')" id="filter-pending"
+    style="padding:6px 16px; border-radius:20px; border:1px solid var(--border-color); background:transparent; color:var(--text-secondary); font-size:0.8rem; font-weight:600; cursor:pointer; transition:var(--transition);">
+    Pending
+  </button>
+  <button onclick="filterLeaves('approved')" id="filter-approved"
+    style="padding:6px 16px; border-radius:20px; border:1px solid var(--border-color); background:transparent; color:var(--text-secondary); font-size:0.8rem; font-weight:600; cursor:pointer; transition:var(--transition);">
+    Approved
+  </button>
+  <button onclick="filterLeaves('rejected')" id="filter-rejected"
+    style="padding:6px 16px; border-radius:20px; border:1px solid var(--border-color); background:transparent; color:var(--text-secondary); font-size:0.8rem; font-weight:600; cursor:pointer; transition:var(--transition);">
+    Rejected
+  </button>
+</div>
+
+<div class="content-card">
+  <div class="card-header-custom">
+    <div class="card-title-custom">
+      <div class="title-icon"><i class="bi bi-calendar-check-fill"></i></div>
+      Leave Applications
+    </div>
+    <div class="search-box">
+      <i class="bi bi-search search-icon"></i>
+      <input type="text" id="table-search" class="form-control" placeholder="Search...">
+    </div>
+  </div>
+
+  {% if leaves %}
+  <div class="table-wrapper">
+    <table class="table-dark-custom">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Employee</th>
+          <th>Department</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Days</th>
+          <th>Reason</th>
+          <th>Applied</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for leave in leaves %}
+        <tr class="searchable-row leave-row" data-status="{{ leave.status }}">
+          <td style="color:var(--text-muted);">{{ loop.index }}</td>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <div class="emp-avatar">{{ leave.name[0].upper() }}</div>
+              <strong>{{ leave.name }}</strong>
+            </div>
+          </td>
+          <td>{{ leave.department or '—' }}</td>
+          <td>{{ leave.start_date }}</td>
+          <td>{{ leave.end_date }}</td>
+          <td>
+            {% set days = (leave.end_date | string | replace('-','') | int) - (leave.start_date | string | replace('-','') | int) %}
+            <span style="font-weight:600; color:var(--accent-purple-light);">—</span>
+          </td>
+          <td style="max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="{{ leave.reason }}">
+            {{ leave.reason }}
+          </td>
+          <td style="color:var(--text-muted); font-size:0.8rem;">{{ leave.applied_at[:10] }}</td>
+          <td><span class="badge-custom badge-{{ leave.status }}">{{ leave.status }}</span></td>
+          <td>
+            {% if leave.status == 'pending' %}
+            <div class="d-flex gap-1">
+              <form method="POST" action="{{ url_for('hr_update_leave', leave_id=leave.id) }}" style="display:inline;">
+                <input type="hidden" name="status" value="approved">
+                <button type="submit" class="btn-sm-icon btn-approve" title="Approve">
+                  <i class="bi bi-check-lg"></i>
+                </button>
+              </form>
+              <form method="POST" action="{{ url_for('hr_update_leave', leave_id=leave.id) }}" style="display:inline;">
+                <input type="hidden" name="status" value="rejected">
+                <button type="submit" class="btn-sm-icon btn-reject" title="Reject">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </form>
+            </div>
+            {% else %}
+            <span style="color:var(--text-muted); font-size:0.8rem;">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <i class="bi bi-calendar-x"></i>
+    <p>No leave requests found.</p>
+  </div>
+  {% endif %}
+</div>
+
+{% block scripts %}
+<script>
+function filterLeaves(status) {
+  document.querySelectorAll('.leave-row').forEach(row => {
+    row.style.display = (status === 'all' || row.dataset.status === status) ? '' : 'none';
+  });
+  document.querySelectorAll('[id^="filter-"]').forEach(btn => {
+    btn.style.background = 'transparent';
+    btn.style.borderColor = 'var(--border-color)';
+    btn.style.color = 'var(--text-secondary)';
+  });
+  const active = document.getElementById('filter-' + status);
+  if (active) {
+    active.style.background = 'rgba(124,111,247,0.15)';
+    active.style.borderColor = 'var(--accent-purple)';
+    active.style.color = 'var(--accent-purple-light)';
+  }
+}
+</script>
+{% endblock %}
+{% endblock %}
